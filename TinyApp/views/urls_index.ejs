@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+    <%include partials/_header.ejs %>
+  </head>
+<body>
+    <!-- Write EJS code here to display shortened links -->
+    <ul> <% for (var key in urls) { %>
+      <li> <%= urls[key] %> : <%= [key] %> </li>
+        <% } %>
+      <li><a href="#">Shorten a url here! (I'll be a link one day)</a></li>
+    </ul>
+</body>
+</html>
+
