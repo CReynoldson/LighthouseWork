@@ -12,15 +12,21 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// app.get("/", (req, res) => {
+//   res.end("Hello!");
+// });
+
 app.get("/", (req, res) => {
-  res.end("Hello!");
-});
+  res.render("urls_new");
+})
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
 app.post("/urls", (req, res) => {
+  let shortURL = generateRandomString(req);
+  urlDatabase[shortURL] = req.body.longURL;
   console.log(req.body);  // debug statement to see POST parameters
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
@@ -57,4 +63,4 @@ function generateRandomString() {
   return randomString;
 }
 
-console.log(generateRandomString());
+// console.log(generateRandomString());
