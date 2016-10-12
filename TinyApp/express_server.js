@@ -44,6 +44,12 @@ app.get("/urls/:id", (req, res) => { // this is where /urls/shortURL redirects t
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+  let deleteProperty = req.params.id;
+  delete urlDatabase[deleteProperty];
+  res.redirect("/urls");
+});
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });

@@ -6,7 +6,12 @@
 <body>
     <!-- Write EJS code here to display shortened links -->
     <ul> <% for (var key in urls) { %>
-      <li> <%= urls[key] %> : <%= [key] %> </li>
+      <li>
+          <form method="POST" action="/urls/<%=[key]%>/delete">
+          <%= urls[key] %> : <%= [key] %>
+          <input type="submit" value="Delete Me!">
+          </form>
+      </li>
         <% } %>
       <li><a href="/">Shorten a url here! (I'll be a link one day)</a></li>
     </ul>
