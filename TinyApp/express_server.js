@@ -1,6 +1,8 @@
 var express = require("express");
 var app = express();
 app.set ("view engine", "ejs");
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded());
 var PORT = process.env.PORT || 8080; // default port 8080
 
 
@@ -14,9 +16,14 @@ app.get("/", (req, res) => {
   res.end("Hello!");
 });
 
-// app.get("/", (req, res) => {
-//   res.render("urls_new");
-// })
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // debug statement to see POST parameters
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
 
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
@@ -39,3 +46,15 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+function generateRandomString() {
+  let charset = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let stringLength = 6;
+  let randomString = "";
+  for (var i = 0; i < stringLength; i++){
+    randomString += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  return randomString;
+}
+
+console.log(generateRandomString());
