@@ -5,8 +5,16 @@
   </head>
 <body>
     <!-- Write EJS code here to display shortened links -->
-  <h2>Display teeny URLs</h2>
-  <p> <a href="/u/<%=shortURL%>"><%= shortURL %></a></p>
+  <h2>Your teeny URL is: <a href="/u/<%=shortURL%>"><%= shortURL %></a> </h2>
+  <!-- <h3> <a href="/u/<%=shortURL%>"><%= shortURL %></a></h3> -->
+
+  <form action="/urls/<%=shortURL%>" method="POST">
+      <label for="longURL">Enter an updated URL for this teeny URL:</label>
+      <input id="longURL" type="text" name="longURL">
+      <input type="submit" value="Update">
+    </form>
+
+  <p> <a href="/urls">Return to URL list </a></p>
   <p> <a href="/">Create another URL!</a></p>
 </body>
 </html>
