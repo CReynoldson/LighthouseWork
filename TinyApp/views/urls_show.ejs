@@ -6,11 +6,10 @@
 <body>
     <!-- Write EJS code here to display shortened links -->
   <h2>Your teeny URL is: <a href="/u/<%=shortURL%>"><%= shortURL %></a> </h2>
-  <!-- <h3> <a href="/u/<%=shortURL%>"><%= shortURL %></a></h3> -->
 
   <form action="/urls/<%=shortURL%>" method="POST">
       <label for="longURL">Enter an updated URL for this teeny URL:</label>
-      <input id="longURL" type="text" name="longURL">
+      <input id="longURL" type="text" name="longURL" placeholder="<%=longURL%>">
       <input type="submit" value="Update">
     </form>
 
