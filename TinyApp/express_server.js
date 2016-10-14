@@ -17,35 +17,83 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const data = {
-  users: []
-};
+const users = {};
 
 //"Home" page
 app.get("/", (req, res) => {
-  let templateVars = { username: req.cookies["username"]};
+  let templateVars = { users, user_id: req.cookies["user_id"]};
   res.render("urls_new", templateVars);
 })
 
 //Clone of home page
-app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies["username"]};
-  res.render("urls_new", templateVars);
+// app.get("/urls/new", (req, res) => {
+//   let templateVars = { user_id: req.cookies["user_id"]};
+//   res.render("urls_new", templateVars);
+// });
+
+app.get("/login", (req, res) => {
+  res.render("loginForm")
 });
 
-//Login page
+//Handle login data
 app.post("/login", (req, res) => {
-  let username = req.body.username;
-  res.cookie("username", username);
-  console.log(req.body.username);
-  data.users.push({username: username});
+  console.log("at post login");
+  let email = req.body.email;
+  let password = req.body.password;
+  let user_id = "";
+  let found = false;
+  for (var key in users){
+    if (users[key].email === email) {
+      found = true;
+      user_id = [key];
+    }
+  }
+  console.log(user_id);
+  if (!found){
+    res.status(403).send("Couldn't find your email. BUMMER.");
+  }
+  if (password !== users[user_id].password){
+    res.status(403).send("You got your password WRONG. Get it toGETHER.");
+  }
+  res.cookie("user_id", user_id);
   res.redirect("/");
 });
 
+//Logout functionality
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/");
 });
+
+//Signup form
+app.get("/register", (req, res) => {
+  res.render("registrationForm");
+});
+
+//Handle Registration Data
+app.post("/register", (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  if(email.length === 0 || password.length === 0){
+    res.status(400).send("You didn't enter anything! What's the deal?");
+  }
+  for (var key in users){
+    console.log("in the for loop");
+    console.log(`${key} ${users[key].email}`);
+    if(users[key].email === email){
+      console.log("in the if loop");
+      res.status(400).send("400!\nThat email is already in the system!");
+    }
+  }
+  let user_id = generateRandomString(email);
+  let user_password = generateRandomString(password);
+  // console.log(`${user_id}, ${user_password}`);
+  res.cookie("user_id", user_id);
+  users[user_id] = {id: user_id, email: email, password: password};
+  console.log(users);
+  res.redirect("/");
+
+})
 
 // Creates teenyURL and redirects to that teenyURL's specific page
 app.post("/urls", (req, res) => {
@@ -71,13 +119,13 @@ app.get("/u/:shortURL", (req, res) => {
 // Displays urls index
 // It's hideous right now and needs formatting ***
 app.get("/urls", (req, res) => {
-  let templateVars = { username: req.cookies["username"], urls: urlDatabase };
+  let templateVars = { users, "user_id": req.cookies["user_id"], urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 // Displays specific teenyURL page
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { username: req.cookies["username"], "shortURL": req.params.id, "longURL":urlDatabase[req.params.id] };
+  let templateVars = { users, "user_id": req.cookies["user_id"], "shortURL": req.params.id, "longURL":urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 

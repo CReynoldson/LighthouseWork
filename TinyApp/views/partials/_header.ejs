@@ -2,20 +2,23 @@
 <html lang="en">
 
 
-  <% if(username) { %>
+  <% if(user_id) { %>
     <form action="/logout" method="POST">
-      <label for="username">Logged in as: <%=username%>:</label>
+      <label for="username">Logged in as: <%=users[user_id].email%>:</label>
       <input type="submit" value="Logout">
     </form>
   <h1>Make a Teeny Tiny URL!</h1>
 
   <% } else { %>
 
-  <form action="/login" method="POST">
-      <label for="username">Login Here!:</label>
-      <input id="username" type="text" name="username" placeholder="username">
+  <form action="/login" method="GET">
+      <label for="username">Login Here!</label>
       <input type="submit" value="Login">
-    </form>
+  </form>
+  <form action="/register" method="GET">
+      <label>Register Here!</label>
+      <input type="submit" value="Register">
+  </form>
   <h1>Make a Teeny Tiny URL!</h1>
     <% } %>
 </html>
