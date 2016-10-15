@@ -12,10 +12,7 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
+const urlDatabase = {};
 
 const users = {};
 
@@ -105,13 +102,28 @@ app.post("/urls", (req, res) => {
     let current_user = req.cookies.user_id;
     let shortURL = generateRandomString();
     users[current_user].urls[shortURL] = req.body.longURL;
-    console.log(users);
+    urlDatabase[shortURL] = req.body.longURL;
+    console.log("URL DATABASE: ");
+    console.log(urlDatabase);
+    console.log("NO LONGER URL DATABASE");
     res.redirect("/urls/" + shortURL);
   }
 });
 
 // Redirects from teenyURL to the corresponding longURL
 app.get("/u/:shortURL", (req, res) => {
+  if (!req.cookies.user_id){
+    let longURL = urlDatabase[req.params.shortURL];
+      if(longURL.substring(0, 8) === "https://"){
+      longURL = longURL.substring(8);
+      res.redirect("http://" + longURL);
+    } else if (longURL.substring(0, 7) === "http://") {
+      longURL = longURL.substring(7);
+      res.redirect("http://" + longURL);
+    } else {
+      res.redirect("http://" + longURL);
+    }
+  }
   let current_user = req.cookies.user_id;
   let longURL = users[current_user].urls[req.params.shortURL];
   if(longURL.substring(0, 8) === "https://"){
@@ -128,15 +140,22 @@ app.get("/u/:shortURL", (req, res) => {
 // Displays urls index
 // It's hideous right now and needs formatting ***
 app.get("/urls", (req, res) => {
-  let current_user = req.cookies.user_id;
-  let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id };
-  res.render("urls_index", templateVars);
+  if (req.cookies.user_id){
+    let current_user = req.cookies.user_id;
+    let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id, urlDatabase:urlDatabase };
+    res.render("urls_index", templateVars);
+  } else {
+    let templateVars = {urlDatabase: urlDatabase};
+    res.render("urls_index", templateVars);
+  }
 });
 
 // Displays specific teenyURL page
 app.get("/urls/:id", (req, res) => {
   let current_user = req.cookies.user_id;
-  let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id, "shortURL": req.params.id, "longURL":users[current_user].urls[req.params.id] };
+  let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id,
+                      "shortURL": req.params.id, "longURL":users[current_user].urls[req.params.id],
+                        urlDatabase:urlDatabase};
   res.render("urls_show", templateVars);
 });
 
