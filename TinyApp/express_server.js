@@ -12,12 +12,13 @@ app.use(bodyParser.urlencoded({
   extended: false
 }));
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
 
 const users = {};
+
 
 //"Home" page
 app.get("/", (req, res) => {
@@ -32,10 +33,12 @@ app.get("/", (req, res) => {
 // });
 
 app.get("/login", (req, res) => {
-  res.render("loginForm")
+  let templateVars = { users, user_id: req.cookies["user_id"]};
+  res.render("loginForm", templateVars);
 });
 
 //Handle login data
+//This could probably be nicer
 app.post("/login", (req, res) => {
   console.log("at post login");
   let email = req.body.email;
@@ -45,12 +48,12 @@ app.post("/login", (req, res) => {
   for (var key in users){
     if (users[key].email === email) {
       found = true;
-      user_id = [key];
+      user_id = users[key].id;
     }
   }
-  console.log(user_id);
   if (!found){
-    res.status(403).send("Couldn't find your email. BUMMER.");
+    res.set("Content-Type", "text/html");
+    res.status(403).send("Couldn't find your email. BUMMER. \n Try <a href=\"/register\">registering</a> first, maybe.");
   }
   if (password !== users[user_id].password){
     res.status(403).send("You got your password WRONG. Get it toGETHER.");
@@ -78,33 +81,39 @@ app.post("/register", (req, res) => {
     res.status(400).send("You didn't enter anything! What's the deal?");
   }
   for (var key in users){
-    console.log("in the for loop");
-    console.log(`${key} ${users[key].email}`);
     if(users[key].email === email){
       console.log("in the if loop");
-      res.status(400).send("400!\nThat email is already in the system!");
+      res.status(400).send("400!\nThat email is already in the system! Get your own!");
     }
   }
   let user_id = generateRandomString(email);
   let user_password = generateRandomString(password);
-  // console.log(`${user_id}, ${user_password}`);
   res.cookie("user_id", user_id);
-  users[user_id] = {id: user_id, email: email, password: password};
+  users[user_id] = {id: user_id, email: email, password: password, urls:{}};
   console.log(users);
   res.redirect("/");
 
 })
 
+// Checks for a login -- if not logged in, redirects to login page
 // Creates teenyURL and redirects to that teenyURL's specific page
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect("/urls/" + shortURL);
+  if (!req.cookies.user_id){
+    res.set('Content-Type', 'text/html');
+    res.status(401).send("You need to <a href=\"/login\">login</a> to create a teeny URL!");
+  } else {
+    let current_user = req.cookies.user_id;
+    let shortURL = generateRandomString();
+    users[current_user].urls[shortURL] = req.body.longURL;
+    console.log(users);
+    res.redirect("/urls/" + shortURL);
+  }
 });
 
 // Redirects from teenyURL to the corresponding longURL
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let current_user = req.cookies.user_id;
+  let longURL = users[current_user].urls[req.params.shortURL];
   if(longURL.substring(0, 8) === "https://"){
     longURL = longURL.substring(8);
     res.redirect("http://" + longURL);
@@ -119,37 +128,42 @@ app.get("/u/:shortURL", (req, res) => {
 // Displays urls index
 // It's hideous right now and needs formatting ***
 app.get("/urls", (req, res) => {
-  let templateVars = { users, "user_id": req.cookies["user_id"], urls: urlDatabase };
+  let current_user = req.cookies.user_id;
+  let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id };
   res.render("urls_index", templateVars);
 });
 
 // Displays specific teenyURL page
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { users, "user_id": req.cookies["user_id"], "shortURL": req.params.id, "longURL":urlDatabase[req.params.id] };
+  let current_user = req.cookies.user_id;
+  let templateVars = { users: users, current_user: current_user, user_id: req.cookies.user_id, "shortURL": req.params.id, "longURL":users[current_user].urls[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
-// Updates urlDatabase and urls index
+// Updates user URLS and URLS index page
 app.post("/urls/:id", (req, res) => {
+  let current_user = req.cookies.user_id;
   let newLongURL = req.body.longURL;
   if (newLongURL.length === 0){
     res.redirect("/urls");
   } else {
-    urlDatabase[req.params.id] = newLongURL;
+    users[current_user].urls[req.params.id] = newLongURL;
     res.redirect("/urls");
   }
 });
 
 // Deletes a url key:value pair from urlDatabase, redirects to url index
 app.post("/urls/:id/delete", (req, res) => {
+  let current_user = req.cookies.user_id;
   let deleteProperty = req.params.id;
-  delete urlDatabase[deleteProperty];
+  delete users[current_user].urls[deleteProperty];
   res.redirect("/urls");
 });
 
 // Delivers a .json formatted version of urlDatabase
 app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+  let current_user = req.cookies.user_id;
+  res.json(users[current_user]);
 });
 
 // Make a port pay attention to you

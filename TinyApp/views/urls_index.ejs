@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
  <head>
-    <%include partials/_header.ejs %>
+    <% include ../views/partials/_header %>
   </head>
 <body>
     <!-- Write EJS code here to display shortened links -->
-    <ul> <% for (var key in urls) { %>
+    <ul> <% for (var key in users[current_user].urls) { %>
       <li>
-          <form method="POST" action="/urls/<%=[key]%>/delete"><%=urls[key]%> : <a href="/u/<%=[key]%>"><%=[key]%></a> &emsp; <a href="/urls/<%=[key]%>">Edit</a>
+          <form method="POST" action="/urls/<%=[key]%>/delete"><%=users[current_user].urls[key]%> : <a href="/u/<%=[key]%>"><%=[key]%></a> &emsp; <a href="/urls/<%=[key]%>">Edit</a>
           &emsp;<input type="submit" value="Delete Me!" >
           </form>
       </li>
