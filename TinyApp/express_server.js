@@ -2,6 +2,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
+const cookieSession = require("cookie-session");
+// const password = "purple-monkey-dinosaur"; // you will probably this from req.params
+// const hashed_password = bcrypt.hashSync(password, 10);
 
 //Declare Constants
 const app = express();
@@ -52,9 +56,10 @@ app.post("/login", (req, res) => {
     res.set("Content-Type", "text/html");
     res.status(403).send("Couldn't find your email. BUMMER. \n Try <a href=\"/register\">registering</a> first, maybe.");
   }
-  if (password !== users[user_id].password){
+  // if (password !== users[user_id].password){
+    if (!(bcrypt.compareSync(password, users[user_id].password))){
     res.status(403).send("You got your password WRONG. Get it toGETHER.");
-  }
+    }
   res.cookie("user_id", user_id);
   res.redirect("/");
 });
@@ -73,8 +78,8 @@ app.get("/register", (req, res) => {
 //Handle Registration Data
 app.post("/register", (req, res) => {
   let email = req.body.email;
-  let password = req.body.password;
-  if(email.length === 0 || password.length === 0){
+  const hashedPassword = bcrypt.hashSync(req.body.password, 5);
+  if(email.length === 0 || hashedPassword.length === 0){
     res.status(400).send("You didn't enter anything! What's the deal?");
   }
   for (var key in users){
@@ -84,12 +89,10 @@ app.post("/register", (req, res) => {
     }
   }
   let user_id = generateRandomString(email);
-  let user_password = generateRandomString(password);
   res.cookie("user_id", user_id);
-  users[user_id] = {id: user_id, email: email, password: password, urls:{}};
+  users[user_id] = {id: user_id, email: email, password: hashedPassword, urls:{}};
   console.log(users);
   res.redirect("/");
-
 })
 
 // Checks for a login -- if not logged in, redirects to login page
