@@ -97,10 +97,12 @@ app.post("/register", (req, res) => {
       res.status(400).send("400!\nThat email is already in the system! Get your own!");
     }
   }
-  let user_id = generateRandomString();
-  req.session.user_id = user_id; //*****
-  users[user_id] = {id: user_id, email: email, password: hashedPassword, urls:{}};
-  res.redirect("/");
+  if (email.length !== 0 && password.length !== 0){
+    let user_id = generateRandomString();
+    req.session.user_id = user_id;
+    users[user_id] = {id: user_id, email: email, password: hashedPassword, urls:{}};
+    res.redirect("/");
+  }
 })
 
 // Checks for a login -- if not logged in, redirects to login page
@@ -153,7 +155,7 @@ app.get("/urls", (req, res) => {
   if (req.session.user_id){
     let current_user = req.session.user_id;
     let templateVars = { users: users, current_user: current_user, user_id: req.session.user_id, urlDatabase:urlDatabase };
-    res.render("urls_index", templateVars);
+    res.status(200).render("urls_index", templateVars);
   } else {
     res.set('Content-Type', 'text/html');
     res.status(401).send("You need to <a href=\"/login\">login</a> to see your teeny URLs!");
