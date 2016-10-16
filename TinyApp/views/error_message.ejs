@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  </head>
+<body>
+    <!-- Write EJS code here to display shortened links -->
+  <h2>Your teeny URL is: <a href="/u/<%=shortURL%>"><%= shortURL %></a> </h2>
+
+  <form action="/urls/<%=shortURL%>" method="POST">
+      <label for="longURL">Enter an updated URL for this teeny URL:</label>
+      <input id="longURL" type="text" name="longURL" placeholder="<%=longURL%>">
+      <input type="submit" value="Update">
+    </form>
+
+  <p> <a href="/urls">Return to URL list </a></p>
+  <p> <a href="/">Create another URL!</a></p>
+</body>
+</html>
+
