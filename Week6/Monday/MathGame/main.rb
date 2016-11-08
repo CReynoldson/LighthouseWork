@@ -8,7 +8,9 @@ game = Game.new(p1, p2)
 while p1.score > 0 && p2.score > 0
   puts "--- NEW TURN ---"
   game.new_round
-
 end
 
-puts "GAME OVER, BITCHES"
+game.winner
+
+puts "----- GAME OVER -----"
+puts "Good bye!"
